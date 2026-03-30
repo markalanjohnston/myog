@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Online Games .FUN!</title>
+  <style>
+    :root {
+      --green:   #39ff14;
+      --cyan:    #00f5ff;
+      --magenta: #ff00ff;
+      --yellow:  #ffe600;
+      --red:     #ff3c3c;
+      --bg:      #0a0a0f;
+      --card:    #12121a;
+      --border:  #1e1e2e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      text-align: center;
+      padding: 3rem 1rem 1.5rem;
+    }
+
+    .site-title {
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      background: linear-gradient(90deg, var(--green), var(--cyan), var(--magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    .site-url {
+      font-size: clamp(0.75rem, 2vw, 1rem);
+      color: #444;
+      letter-spacing: 0.2em;
+      margin-top: 0.4rem;
+    }
+
+    /* ── HOOK ── */
+    .hook {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 2rem;
+    }
+
+    .hook h2 {
+      font-size: clamp(1.1rem, 3vw, 1.7rem);
+      color: var(--cyan);
+      margin-bottom: 0.75rem;
+      font-weight: 400;
+    }
+
+    .hook p {
+      color: #888;
+      line-height: 1.7;
+      font-size: 0.92rem;
+    }
+
+    .hook .hi { color: var(--yellow); font-weight: bold; }
+
+    /* ── GAME SECTION ── */
+    .game-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0 1rem 1rem;
+    }
+
+    .game-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: #444;
+      text-transform: uppercase;
+    }
+
+    /* canvas wrapper so we can overlay the status bar */
+    .canvas-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    #game-canvas {
+      display: block;
+      border: 2px solid #2a4a1a;
+      box-shadow: 0 0 28px rgba(57,255,20,0.18), 0 0 70px rgba(57,255,20,0.05);
+      border-radius: 4px;
+      cursor: pointer;
+      max-width: 100%;
+    }
+
+    /* status bar beneath canvas */
+    .game-status {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+    }
+
+    #score-el  { color: var(--green); }
+    #status-el { color: #888; }
+
+    .btn {
+      background: transparent;
+      border: 1px solid #333;
+      color: #666;
+      font-family: inherit;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      border-radius: 3px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* mobile d-pad */
+    .dpad {
+      display: grid;
+      grid-template-areas: ". up ." "left . right" ". down .";
+      gap: 4px;
+      margin-top: 0.25rem;
+    }
+    .dpad button {
+      width: 44px; height: 44px;
+      background: var(--card);
+      border: 1px solid #2a2a3a;
+      color: #666;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s, color 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .dpad button:active { background: var(--green); color: #000; }
+    .dpad button[data-dir="UP"]    { grid-area: up; }
+    .dpad button[data-dir="LEFT"]  { grid-area: left; }
+    .dpad button[data-dir="RIGHT"] { grid-area: right; }
+    .dpad button[data-dir="DOWN"]  { grid-area: down; }
+
+    /* ── PIVOT ── */
+    .pivot {
+      text-align: center;
+      max-width: 680px;
+      margin: 3rem auto 0;
+      padding: 0 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      padding-top: 3rem;
+    }
+    .pivot h2 { font-size: clamp(1.2rem, 3.5vw, 2rem); color: var(--magenta); margin-bottom: 1rem; }
+    .pivot p  { color: #888; font-size: 0.92rem; line-height: 1.7; margin-bottom: 0.75rem; }
+
+    /* ── COMING SOON ── */
+    .coming-soon {
+      max-width: 920px;
+      margin: 2rem auto;
+      padding: 0 1rem 3rem;
+    }
+    .coming-soon h3 {
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: #444;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: #333; transform: translateY(-2px); }
+    .card .emoji { font-size: 1.8rem; margin-bottom: 0.6rem; display: block; }
+    .card-badge {
+      font-size: 0.58rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #555;
+      margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .card-badge::before {
+      content: ''; display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%; background: #333;
+    }
+    .card-badge.soon { color: var(--yellow); }
+    .card-badge.soon::before { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+    .card h4 { font-size: 0.95rem; color: #ddd; margin-bottom: 0.4rem; }
+    .card p  { font-size: 0.78rem; color: #555; line-height: 1.5; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 1px solid var(--border);
+      color: #333;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+    }
+    footer a { color: #444; text-decoration: none; }
+    footer a:hover { color: var(--cyan); }
+
+    /* scanline */
+    body::after {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px, transparent 3px,
+        rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px
+      );
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">My Online Games .FUN!</div>
+  <div class="site-url">myog.fun</div>
+</header>
+
+<section class="hook">
+  <h2>Go ahead. Play for a minute.</h2>
+  <p>
+    <span class="hi">Arrow keys or WASD</span> to move &nbsp;·&nbsp;
+    <span class="hi">Space</span> to start &nbsp;·&nbsp;
+    <span class="hi">R</span> to reset.<br>
+    Watch out for the poison bugs — they'll mess with your head.<br>
+    When you're done, scroll down. <span class="hi">You could build this.</span>
+  </p>
+</section>
+
+<section class="game-section">
+  <div class="game-label">&#x25b6; snake sprint — live demo</div>
+  <div class="canvas-wrap">
+    <canvas id="game-canvas" width="400" height="380" tabindex="0"></canvas>
+  </div>
+  <div class="game-status">
+    <span id="score-el">SCORE: 0 &nbsp;|&nbsp; HI: 0</span>
+    <span id="status-el">press space to start</span>
+    <button class="btn" id="reset-btn">[ R ] RESET</button>
+  </div>
+  <div class="dpad" aria-label="D-pad">
+    <button data-dir="UP">▲</button>
+    <button data-dir="LEFT">◀</button>
+    <button data-dir="RIGHT">▶</button>
+    <button data-dir="DOWN">▼</button>
+  </div>
+</section>
+
+<section class="pivot">
+  <h2>Wait — you could <em>make</em> that.</h2>
+  <p>
+    That game above is <strong style="color:#ddd">plain JavaScript</strong>.
+    No game engine. No special software. Just a browser and a text file —
+    the same kind of file you've been opening to watch YouTube.
+  </p>
+  <p>
+    This site is about learning to <strong style="color:#ddd">build</strong> games, not just play them.
+    You'll go from a blank page to a working game you can share with anyone in the world
+    using a free link.
+  </p>
+  <p>
+    The lessons start simple. By the end you'll understand
+    loops, events, state, and collision detection —
+    the same ideas that power every game you've ever played.
+  </p>
+</section>
+
+<section class="coming-soon">
+  <h3>&#x2699;&nbsp; what's coming</h3>
+  <div class="cards">
+
+    <div class="card">
+      <span class="emoji">🐍</span>
+      <div class="card-badge soon">Lesson 1 — Coming Soon</div>
+      <h4>Build Snake in One Class Period</h4>
+      <p>Canvas, a game loop, arrow key events, and collision. Deploy free on GitHub Pages before the bell rings.</p>
+    </div>
+
+    <div class="card">
+      <span class="emoji">💣</span>
+      <div class="card-badge soon">Lesson 2 — Coming Soon</div>
+      <h4>Minesweeper from Scratch</h4>
+      <p>Grids, recursion, and right-click events. You'll finally understand how the mine count actually works.</p>
+    </div>
+
+    <div class="card">
+      <span class="emoji">🏓</span>
+      <div class="card-badge soon">Lesson 3 — Coming Soon</div>
+      <h4>Two-Player Pong</h4>
+      <p>Two players, one keyboard. Bouncing physics and a scoreboard — no library required.</p>
+    </div>
+
+    <div class="card">
+      <span class="emoji">🚀</span>
+      <div class="card-badge soon">Bonus — Coming Soon</div>
+      <h4>Ship Your Game</h4>
+      <p>Git, GitHub Pages, a custom domain. Go from local file to a live URL anyone on Earth can open.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>myog.fun &nbsp;·&nbsp; games by students, for students</p>
+  <p style="margin-top:0.4rem">
+    <a href="https://github.com/markalanjohnston">github</a>
+  </p>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  // ── Canvas setup ─────────────────────────────────────────────
+  const canvas = document.getElementById('game-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  const CELL   = 20;
+  const LEFT   = 20,  TOP   = 40;
+  const W      = 360, H     = 300;
+  const COLS   = W / CELL;   // 18
+  const ROWS   = H / CELL;   // 15
+
+  const NORMAL_MS  = 1000 / 7;
+  const POISON_MS  = 1000 / 3;
+
+  // ── State ─────────────────────────────────────────────────────
+  let snake, dir, nextDir, food, poison;
+  let score, hiScore = 0;
+  let started, gameOver, poisoned;
+  let stepTimer = null, lastStep = 0;
+
+  // ── Helpers ───────────────────────────────────────────────────
+  const rand = n => Math.floor(Math.random() * n);
+
+  function cellPx(col, row) {
+    return [LEFT + col * CELL + CELL / 2, TOP + row * CELL + CELL / 2];
+  }
+
+  function inSnake(col, row) {
+    return snake.some(s => s[0] === col && s[1] === row);
+  }
+
+  function placeItem(blocked) {
+    let c, r;
+    do { c = rand(COLS); r = rand(ROWS); }
+    while (inSnake(c, r) || (blocked && blocked[0] === c && blocked[1] === r));
+    return [c, r];
+  }
+
+  function spawnFood()   { food   = placeItem(poison); }
+  function spawnPoison() { poison = (rand(100) < 35) ? placeItem(food) : null; }
+
+  // ── Draw primitives ───────────────────────────────────────────
+
+  function drawGrid() {
+    // board background: green gradient
+    const grad = ctx.createLinearGradient(LEFT, TOP, LEFT, TOP + H);
+    grad.addColorStop(0, '#2d4a1e');
+    grad.addColorStop(1, '#1a3010');
+    ctx.fillStyle = grad;
+    ctx.fillRect(LEFT, TOP, W, H);
+
+    // grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 0.5;
+    for (let x = LEFT; x <= LEFT + W; x += CELL) {
+      ctx.beginPath(); ctx.moveTo(x, TOP); ctx.lineTo(x, TOP + H); ctx.stroke();
+    }
+    for (let y = TOP; y <= TOP + H; y += CELL) {
+      ctx.beginPath(); ctx.moveTo(LEFT, y); ctx.lineTo(LEFT + W, y); ctx.stroke();
+    }
+
+    // border
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(LEFT, TOP, W, H);
+  }
+
+  function drawFoodItem(col, row) {
+    const [x, y] = cellPx(col, row);
+    ctx.save();
+
+    // stem / leaves
+    ctx.fillStyle = '#228b22';
+    // center leaf
+    ctx.beginPath();
+    ctx.ellipse(x, y, 4, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // side leaf left
+    ctx.beginPath();
+    ctx.ellipse(x - 5, y, 5, 10, 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    // side leaf right
+    ctx.beginPath();
+    ctx.ellipse(x + 5, y, 5, 10, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // berry
+    ctx.fillStyle = '#cc2200';
+    ctx.shadowColor = '#ff4422';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(x, y - 10, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.restore();
+  }
+
+  function drawPoisonItem(col, row) {
+    const [x, y] = cellPx(col, row);
+    ctx.save();
+
+    // bug body
+    ctx.fillStyle = '#6b0000';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 5, 9, 11, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+
+    // bug head
+    ctx.fillStyle = '#8b0000';
+    ctx.beginPath();
+    ctx.arc(x, y - 10, 7, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+
+    // legs
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.5;
+    const legPairs = [[-9, 2, -4, 8], [9, 2, 4, 8], [-9, 12, -4, 8], [9, 12, 4, 8]];
+    for (const [x1,y1,x2,y2] of legPairs) {
+      ctx.beginPath();
+      ctx.moveTo(x + x1, y + y1);
+      ctx.lineTo(x + x2, y + y2);
+      ctx.stroke();
+    }
+
+    // eyes
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(x - 3, y - 12, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 3, y - 12, 1.5, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawSnake() {
+    const flash = poisoned && (Date.now() % 600 < 300);
+
+    for (let i = snake.length - 1; i >= 0; i--) {
+      const [col, row] = snake[i];
+      const [x, y] = cellPx(col, row);
+
+      if (i === 0) {
+        // head
+        const headColor = flash ? '#8b0000' : '#2e7d32';
+        ctx.fillStyle = headColor;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+        // eyes
+        ctx.fillStyle = 'white';
+        ctx.beginPath(); ctx.arc(x + 3, y - 3, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + 3, y + 3, 2, 0, Math.PI * 2); ctx.fill();
+
+        // tongue
+        ctx.fillStyle = flash ? '#ff4500' : '#cc0000';
+        ctx.beginPath();
+        ctx.moveTo(x + 10, y);
+        ctx.lineTo(x + 16, y - 2.5);
+        ctx.lineTo(x + 16, y + 2.5);
+        ctx.closePath(); ctx.fill();
+
+      } else {
+        // body segment
+        let bodyColor;
+        if (flash) {
+          bodyColor = i % 2 === 0 ? '#cc0000' : '#ff4444';
+        } else {
+          bodyColor = i % 2 === 0 ? '#66bb6a' : '#388e3c';
+        }
+        ctx.fillStyle = bodyColor;
+        ctx.strokeStyle = flash ? '#660000' : '#1b5e20';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
+    }
+  }
+
+  function drawOverlay(title, sub, titleColor) {
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(LEFT + 20, TOP + H / 2 - 55, W - 40, 110);
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(LEFT + 20, TOP + H / 2 - 55, W - 40, 110);
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillStyle = titleColor;
+    ctx.shadowColor = titleColor;
+    ctx.shadowBlur = 12;
+    ctx.font = 'bold 22px Courier New';
+    ctx.fillText(title, LEFT + W / 2, TOP + H / 2 - 18);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#aaa';
+    ctx.font = '13px Courier New';
+    ctx.fillText(sub, LEFT + W / 2, TOP + H / 2 + 18);
+  }
+
+  function drawUI() {
+    // header bar area (above board)
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, canvas.width, TOP);
+    ctx.fillRect(0, TOP + H, canvas.width, canvas.height - TOP - H);
+    ctx.fillRect(0, 0, LEFT, canvas.height);
+    ctx.fillRect(LEFT + W, 0, canvas.width - LEFT - W, canvas.height);
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 16px Courier New';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Snake Sprint', LEFT + W / 2, 16);
+
+    ctx.fillStyle = '#888';
+    ctx.font = '9px Courier New';
+    ctx.fillText('arrows / wasd to move  ·  space start  ·  r reset', LEFT + W / 2, 30);
+  }
+
+  // ── Full render ───────────────────────────────────────────────
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawUI();
+    drawGrid();
+    if (food)   drawFoodItem(food[0], food[1]);
+    if (poison) drawPoisonItem(poison[0], poison[1]);
+    drawSnake();
+
+    if (!started && !gameOver) {
+      drawOverlay('Snake Sprint', 'press space to start', '#39ff14');
+    }
+    if (gameOver) {
+      drawOverlay('GAME OVER', `score: ${score}  ·  space to play again`, '#ff3c3c');
+    }
+  }
+
+  // ── Status bar ────────────────────────────────────────────────
+
+  function updateStatus() {
+    document.getElementById('score-el').textContent =
+      `SCORE: ${score} \u00a0|\u00a0 HI: ${hiScore}`;
+
+    const el = document.getElementById('status-el');
+    if      (gameOver)  el.textContent = 'game over — press space';
+    else if (poisoned)  el.textContent = '☠ poisoned! reverse controls';
+    else if (started)   el.textContent = 'eat the food';
+    else                el.textContent = 'press space to start';
+
+    el.style.color = poisoned ? '#ff3c3c' : '#888';
+  }
+
+  // ── Game logic ────────────────────────────────────────────────
+
+  function applyDir(d) {
+    const opp = { up:'down', down:'up', left:'right', right:'left' };
+    if (dir !== opp[d]) nextDir = d;
+  }
+
+  function handleInput(rawDir) {
+    const d = poisoned
+      ? { up:'down', down:'up', left:'right', right:'left' }[rawDir]
+      : rawDir;
+    applyDir(d);
+  }
+
+  function step() {
+    dir = nextDir;
+    const [hc, hr] = snake[0];
+    const deltas = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
+    const [dc, dr] = deltas[dir];
+    const nc = hc + dc, nr = hr + dr;
+
+    // wall or self
+    if (nc < 0 || nc >= COLS || nr < 0 || nr >= ROWS || inSnake(nc, nr)) {
+      gameOver = true;
+      started  = false;
+      if (score > hiScore) hiScore = score;
+      updateStatus();
+      render();
+      return;
+    }
+
+    snake.unshift([nc, nr]);
+
+    if (food && nc === food[0] && nr === food[1]) {
+      score += 10;
+      poisoned = false;
+      spawnFood();
+      spawnPoison();
+    } else if (poison && nc === poison[0] && nr === poison[1]) {
+      score = Math.max(0, score - 5);
+      poisoned = true;
+      poison = null;
+      if (snake.length > 3) snake.pop(); // shrink slightly
+    } else {
+      snake.pop();
+    }
+
+    updateStatus();
+    render();
+  }
+
+  function gameLoop(ts) {
+    if (!started || gameOver) return;
+    const interval = poisoned ? POISON_MS : NORMAL_MS;
+    if (ts - lastStep >= interval) {
+      lastStep = ts;
+      step();
+    }
+    stepTimer = requestAnimationFrame(gameLoop);
+  }
+
+  function startLoop() {
+    if (stepTimer) cancelAnimationFrame(stepTimer);
+    lastStep = performance.now();
+    stepTimer = requestAnimationFrame(gameLoop);
+  }
+
+  function reset() {
+    if (stepTimer) cancelAnimationFrame(stepTimer);
+    snake    = [[8,7],[7,7],[6,7]];
+    dir      = 'right';
+    nextDir  = 'right';
+    score    = 0;
+    started  = false;
+    gameOver = false;
+    poisoned = false;
+    spawnFood();
+    spawnPoison();
+    updateStatus();
+    render();
+  }
+
+  function startGame() {
+    if (gameOver) reset();
+    started = true;
+    updateStatus();
+    startLoop();
+  }
+
+  // ── Input ─────────────────────────────────────────────────────
+
+  document.addEventListener('keydown', e => {
+    const map = {
+      ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
+      w:'up', s:'down', a:'left', d:'right',
+    };
+    if (e.key === ' ') { e.preventDefault(); startGame(); return; }
+    if (e.key === 'r' || e.key === 'R') { reset(); return; }
+    const d = map[e.key];
+    if (d) { e.preventDefault(); handleInput(d); }
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', reset);
+
+  document.querySelectorAll('.dpad button').forEach(btn => {
+    const map = { UP:'up', DOWN:'down', LEFT:'left', RIGHT:'right' };
+    btn.addEventListener('click', () => handleInput(map[btn.dataset.dir]));
+    btn.addEventListener('touchstart', e => {
+      e.preventDefault();
+      handleInput(map[btn.dataset.dir]);
+    }, { passive: false });
+  });
+
+  // ── Kick off ──────────────────────────────────────────────────
+  reset();
+})();
+</script>
+
+</body>
+</html>
