@@ -87,37 +87,75 @@
 
   <style>
     :root {
-      --green:   #39ff14;
-      --cyan:    #00f5ff;
-      --magenta: #ff00ff;
-      --yellow:  #ffe600;
-      --red:     #ff3c3c;
-      --bg:      #0a0a0f;
-      --card:    #12121a;
-      --border:  #1e1e2e;
+      --green:      #39ff14;
+      --cyan:       #00f5ff;
+      --magenta:    #ff00ff;
+      --yellow:     #ffe600;
+      --red:        #ff3c3c;
+      --bg:         #07070e;
+      --surface:    #0e0e1a;
+      --card:       #13131f;
+      --card-hi:    #181828;
+      --border:     #1f1f32;
+      --border-hi:  #2e2e48;
+      --text:       #d0d0e0;
+      --muted:      #6a6a88;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background: var(--bg);
-      color: #e0e0e0;
+      color: var(--text);
       font-family: 'Courier New', Courier, monospace;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ── HEADER ── */
-    header {
+    /* ── PAGE SHELL ── */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── SHARED CARD BASE ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+
+    /* ── HEADER CARD ── */
+    .card-header {
       text-align: center;
-      padding: 3rem 1rem 1.5rem;
+      padding: 2.5rem 2rem;
+      background: linear-gradient(160deg, #0e1a0e 0%, var(--card) 60%);
+      border-color: #1a2e1a;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle green corner glow */
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 120px;
+      background: radial-gradient(ellipse, rgba(57,255,20,0.12) 0%, transparent 70%);
+      pointer-events: none;
     }
 
     .site-title {
-      font-size: clamp(2rem, 6vw, 4.5rem);
+      font-size: clamp(1.8rem, 5.5vw, 4rem);
       font-weight: 900;
-      letter-spacing: 0.04em;
-      background: linear-gradient(90deg, var(--green), var(--cyan), var(--magenta));
+      letter-spacing: 0.03em;
+      background: linear-gradient(90deg, var(--green) 0%, var(--cyan) 50%, var(--magenta) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -125,154 +163,221 @@
     }
 
     .site-url {
-      font-size: clamp(0.75rem, 2vw, 1rem);
-      color: #444;
-      letter-spacing: 0.2em;
-      margin-top: 0.4rem;
+      font-size: 1.1rem;
+      color: white;
+      letter-spacing: 0.22em;
+      margin-top: 0.5rem;
     }
 
-    /* ── HOOK ── */
-    .hook {
-      text-align: center;
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 1rem 1.5rem 2rem;
+    .site-tagline {
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
     }
 
-    .hook h2 {
-      font-size: clamp(1.1rem, 3vw, 1.7rem);
-      color: var(--cyan);
-      margin-bottom: 0.75rem;
-      font-weight: 400;
+    .site-tagline .hi { color: var(--yellow); font-weight: bold; }
+
+    /* ── GAME CARD ── */
+    .card-game {
+      padding: 1.5rem;
+      border-color: #1a2e1a;
+      background: linear-gradient(180deg, #0d1a0d 0%, var(--card) 100%);
     }
 
-    .hook p {
-      color: #888;
-      line-height: 1.7;
-      font-size: 0.92rem;
-    }
-
-    .hook .hi { color: var(--yellow); font-weight: bold; }
-
-    /* ── GAME SECTION ── */
-    .game-section {
+    .card-game-header {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0 1rem 1rem;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    .game-label {
+    .game-title {
       font-size: 0.65rem;
       letter-spacing: 0.3em;
-      color: #444;
+      color: var(--muted);
       text-transform: uppercase;
     }
 
-    .canvas-wrap {
-      width: min(100%, 720px);
+    .game-status {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
     }
+
+    #score-el  { color: var(--green); }
+    #status-el { color: var(--muted); }
+
+    .btn {
+      background: transparent;
+      border: 1px solid var(--border-hi);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.68rem;
+      padding: 0.28rem 0.75rem;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      border-radius: 4px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { border-color: var(--green); color: var(--green); }
+
+    .canvas-wrap { width: 100%; }
 
     #game-canvas {
       display: block;
       width: 100%;
       height: auto;
-      border: 2px solid #2a4a1a;
-      box-shadow: 0 0 28px rgba(57,255,20,0.18), 0 0 70px rgba(57,255,20,0.05);
-      border-radius: 4px;
+      border: 1px solid #1e3a1e;
+      box-shadow: 0 0 32px rgba(57,255,20,0.14), 0 0 80px rgba(57,255,20,0.04);
+      border-radius: 6px;
       cursor: pointer;
     }
 
-    .game-status {
-      display: flex;
-      gap: 1.2rem;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-    }
-
-    #score-el  { color: var(--green); }
-    #status-el { color: #888; }
-
-    .btn {
-      background: transparent;
-      border: 1px solid #333;
-      color: #666;
-      font-family: inherit;
-      font-size: 0.7rem;
-      padding: 0.3rem 0.8rem;
-      cursor: pointer;
-      letter-spacing: 0.1em;
-      border-radius: 3px;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .btn:hover { border-color: var(--green); color: var(--green); }
-
-    /* ── PIVOT ── */
-    .pivot {
-      text-align: center;
-      max-width: 680px;
-      margin: 3rem auto 0;
-      padding: 3rem 1.5rem 2rem;
-      border-top: 1px solid var(--border);
-    }
-    .pivot h2 { font-size: clamp(1.2rem, 3.5vw, 2rem); color: var(--magenta); margin-bottom: 1rem; }
-    .pivot p  { color: #888; font-size: 0.92rem; line-height: 1.7; margin-bottom: 0.75rem; }
-
-    /* ── COMING SOON ── */
-    .coming-soon {
-      max-width: 920px;
-      margin: 2rem auto;
-      padding: 0 1rem 3rem;
-    }
-    .coming-soon h3 {
-      text-align: center;
-      font-size: 0.65rem;
-      letter-spacing: 0.35em;
-      color: #444;
-      text-transform: uppercase;
-      margin-bottom: 1.25rem;
-    }
-    .cards {
+    /* ── PIVOT CARD ── */
+    .card-pivot {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    @media (max-width: 580px) {
+      .card-pivot { grid-template-columns: 1fr; }
+    }
+
+    .pivot-text h2 {
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      color: var(--magenta);
+      margin-bottom: 0.9rem;
+      line-height: 1.2;
+    }
+
+    .pivot-text p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.75;
+      margin-bottom: 0.7rem;
+    }
+
+    .pivot-text p:last-child { margin-bottom: 0; }
+    .pivot-text strong { color: var(--text); }
+
+    .pivot-stats {
+      display: flex;
+      flex-direction: column;
       gap: 1rem;
     }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1.25rem;
-      transition: border-color 0.2s, transform 0.2s;
+
+    .stat {
+      background: var(--card-hi);
+      border: 1px solid var(--border-hi);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
     }
-    .card:hover { border-color: #333; transform: translateY(-2px); }
-    .card .emoji { font-size: 1.8rem; margin-bottom: 0.6rem; display: block; }
-    .card-badge {
-      font-size: 0.58rem; letter-spacing: 0.2em;
-      text-transform: uppercase; color: #555;
+
+    .stat-value {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 900;
+      color: var(--cyan);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── LESSONS SECTION ── */
+    .section-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.35em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .lessons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .card-lesson {
+      padding: 1.4rem;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+      cursor: default;
+    }
+
+    .card-lesson:hover {
+      border-color: var(--border-hi);
+      background: var(--card-hi);
+      transform: translateY(-3px);
+    }
+
+    .lesson-num {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
       margin-bottom: 0.5rem;
-      display: flex; align-items: center; gap: 0.4rem;
     }
-    .card-badge::before {
-      content: ''; display: inline-block;
+
+    .lesson-emoji {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.75rem;
+      line-height: 1;
+    }
+
+    .card-lesson h4 {
+      font-size: 0.92rem;
+      color: var(--text);
+      margin-bottom: 0.45rem;
+      line-height: 1.3;
+    }
+
+    .card-lesson p {
+      font-size: 0.76rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .badge-soon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-top: 0.9rem;
+    }
+
+    .badge-soon::before {
+      content: '';
       width: 5px; height: 5px;
-      border-radius: 50%; background: #333;
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: 0 0 6px var(--yellow);
+      flex-shrink: 0;
     }
-    .card-badge.soon { color: var(--yellow); }
-    .card-badge.soon::before { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
-    .card h4 { font-size: 0.95rem; color: #ddd; margin-bottom: 0.4rem; }
-    .card p  { font-size: 0.78rem; color: #555; line-height: 1.5; }
 
     /* ── FOOTER ── */
     footer {
       text-align: center;
-      padding: 2rem 1rem;
+      padding: 1.5rem 1rem;
       border-top: 1px solid var(--border);
       color: #333;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       letter-spacing: 0.1em;
     }
     footer a { color: #444; text-decoration: none; }
@@ -287,7 +392,7 @@
       background: repeating-linear-gradient(
         to bottom,
         transparent 0px, transparent 3px,
-        rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px
+        rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px
       );
       z-index: 999;
     }
@@ -295,93 +400,107 @@
 </head>
 <body>
 
-<header>
-  <div class="site-title">My Online Games .FUN!</div>
-  <div class="site-url">myog.fun</div>
-</header>
+<div class="page">
 
-<section class="hook">
-  <h2>Go ahead. Play for a minute.</h2>
-  <p>
-    <span class="hi">Arrow keys or WASD</span> to move &nbsp;·&nbsp;
-    <span class="hi">Space</span> to start &nbsp;·&nbsp;
-    <span class="hi">R</span> to reset.<br>
-    Watch out for the poison bugs — they'll mess with your head.<br>
-    When you're done, scroll down. <span class="hi">You could build this.</span>
-  </p>
-</section>
-
-<section class="game-section">
-  <div class="game-label">&#x25b6; snake sprint — live demo</div>
-  <div class="canvas-wrap">
-    <canvas id="game-canvas" tabindex="0"></canvas>
+  <!-- ── HEADER ── -->
+  <div class="card card-header">
+    <div class="site-title">My Online Games</div>
+    <div class="site-url">https://MYOG.FUN/</div>
   </div>
-  <div class="game-status">
-    <span id="score-el">SCORE: 0 &nbsp;|&nbsp; HI: 0</span>
-    <span id="status-el">press space to start</span>
-    <button class="btn" id="reset-btn">[ R ] RESET</button>
+
+  <!-- ── GAME ── -->
+  <div class="card card-game">
+    <div class="card-game-header">
+      <span class="game-title">&#x25b6; snake sprint — live demo</span>
+      <div class="game-status">
+        <span id="score-el">SCORE: 0 &nbsp;|&nbsp; HI: 0</span>
+        <span id="status-el">press space to start</span>
+        <button class="btn" id="reset-btn">[ R ] RESET</button>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="game-canvas" tabindex="0"></canvas>
+    </div>
   </div>
-</section>
 
-<section class="pivot">
-  <h2>Wait — you could <em>make</em> that.</h2>
-  <p>
-    That game above is <strong style="color:#ddd">plain JavaScript</strong>.
-    No game engine. No special software. Just a browser and a text file —
-    the same kind of file you've been opening to watch YouTube.
-  </p>
-  <p>
-    This site is about learning to <strong style="color:#ddd">build</strong> games, not just play them.
-    You'll go from a blank page to a working game you can share with anyone in the world
-    using a free link.
-  </p>
-  <p>
-    The lessons start simple. By the end you'll understand
-    loops, events, state, and collision detection —
-    the same ideas that power every game you've ever played.
-  </p>
-</section>
-
-<section class="coming-soon">
-  <h3>&#x2699;&nbsp; what's coming</h3>
-  <div class="cards">
-
-    <div class="card">
-      <span class="emoji">🐍</span>
-      <div class="card-badge soon">Lesson 1 — Coming Soon</div>
-      <h4>Build Snake in One Class Period</h4>
-      <p>Canvas, a game loop, arrow key events, and collision. Deploy free on GitHub Pages before the bell rings.</p>
+  <!-- ── PIVOT ── -->
+  <div class="card card-pivot">
+    <div class="pivot-text">
+      <h2>Wait — you could <em>make</em> that.</h2>
+      <p>
+        That game is <strong>plain JavaScript</strong>.
+        No engine. No special software. Just a browser and a text file.
+      </p>
+      <p>
+        This site is about learning to <strong>build</strong> games, not just play them.
+        You'll go from a blank page to a working game with a free shareable link.
+      </p>
+      <p>
+        By the end you'll understand loops, events, state, and collision detection —
+        the same ideas powering every game you've ever played.
+      </p>
     </div>
-
-    <div class="card">
-      <span class="emoji">💣</span>
-      <div class="card-badge soon">Lesson 2 — Coming Soon</div>
-      <h4>Minesweeper from Scratch</h4>
-      <p>Grids, recursion, and right-click events. You'll finally understand how the mine count actually works.</p>
+    <div class="pivot-stats">
+      <div class="stat">
+        <div class="stat-value">~60</div>
+        <div class="stat-label">lines of code in that snake game</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">$0</div>
+        <div class="stat-label">to build and host your own game</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">1</div>
+        <div class="stat-label">class period to finish lesson 1</div>
+      </div>
     </div>
-
-    <div class="card">
-      <span class="emoji">🏓</span>
-      <div class="card-badge soon">Lesson 3 — Coming Soon</div>
-      <h4>Two-Player Pong</h4>
-      <p>Two players, one keyboard. Bouncing physics and a scoreboard — no library required.</p>
-    </div>
-
-    <div class="card">
-      <span class="emoji">🚀</span>
-      <div class="card-badge soon">Bonus — Coming Soon</div>
-      <h4>Ship Your Game</h4>
-      <p>Git, GitHub Pages, a custom domain. Go from local file to a live URL anyone on Earth can open.</p>
-    </div>
-
   </div>
-</section>
+
+  <!-- ── LESSONS ── -->
+  <div>
+    <div class="section-label">&#x2699;&nbsp; what's coming</div>
+    <div class="lessons-grid" style="margin-top: 0.75rem;">
+
+      <div class="card card-lesson">
+        <span class="lesson-emoji">🐍</span>
+        <div class="lesson-num">Lesson 1</div>
+        <h4>Build Snake in One Class Period</h4>
+        <p>Canvas, a game loop, arrow key events, and collision detection. Deploy free on GitHub Pages before the bell rings.</p>
+        <div class="badge-soon">Coming Soon</div>
+      </div>
+
+      <div class="card card-lesson">
+        <span class="lesson-emoji">💣</span>
+        <div class="lesson-num">Lesson 2</div>
+        <h4>Minesweeper from Scratch</h4>
+        <p>Grids, recursion, and right-click events. You'll finally understand how the mine count actually works.</p>
+        <div class="badge-soon">Coming Soon</div>
+      </div>
+
+      <div class="card card-lesson">
+        <span class="lesson-emoji">🏓</span>
+        <div class="lesson-num">Lesson 3</div>
+        <h4>Two-Player Pong</h4>
+        <p>Two players, one keyboard. Bouncing physics and a scoreboard — no library required.</p>
+        <div class="badge-soon">Coming Soon</div>
+      </div>
+
+      <div class="card card-lesson">
+        <span class="lesson-emoji">🚀</span>
+        <div class="lesson-num">Bonus</div>
+        <h4>Ship Your Game</h4>
+        <p>Git, GitHub Pages, custom domain. Go from local file to a live URL anyone on Earth can open.</p>
+        <div class="badge-soon">Coming Soon</div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /.page -->
 
 <footer>
   <p>myog.fun &nbsp;·&nbsp; games by students, for students</p>
-  <p style="margin-top:0.4rem">
-    <a href="https://github.com/markalanjohnston">github</a>
-  </p>
+  <p style="margin-top:0.4rem"><a href="https://github.com/markalanjohnston">github</a></p>
 </footer>
 
 <script>
