@@ -3,7 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Online Games .FUN!</title>
+  <title>My Online Games .FUN! — Learn to Build Browser Games</title>
+  <meta name="description" content="Free computer science lessons for students. Learn to build browser games with plain JavaScript — no downloads, no accounts. Covers Snake, Minesweeper, Pong, and deploying to GitHub Pages." />
+  <meta name="keywords" content="computer science education, javascript games, learn to code, high school coding, game development tutorial, github pages, cs lessons, snake game tutorial, minesweeper tutorial" />
+  <meta name="author" content="Mark Johnston" />
+  <meta name="robots" content="index, follow" />
+  <meta name="category" content="education, computer science, programming" />
+  <link rel="canonical" href="https://myog.fun/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://myog.fun/" />
+  <meta property="og:site_name"   content="My Online Games .FUN!" />
+  <meta property="og:title"       content="My Online Games .FUN! — Learn to Build Browser Games" />
+  <meta property="og:description" content="Free CS lessons for students. Build Snake, Minesweeper, and Pong in plain JavaScript. No downloads, no accounts. Deploy your game free with GitHub Pages." />
+
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://myog.fun/#website",
+        "url": "https://myog.fun/",
+        "name": "My Online Games .FUN!",
+        "description": "Free computer science lessons where students learn to build browser games with plain JavaScript.",
+        "publisher": {
+          "@type": "Person",
+          "name": "Mark Johnston",
+          "jobTitle": "Computer Science Teacher"
+        },
+        "audience": {
+          "@type": "EducationalAudience",
+          "educationalRole": "student",
+          "audienceType": "High School Students"
+        },
+        "educationalAlignment": {
+          "@type": "AlignmentObject",
+          "alignmentType": "educationalSubject",
+          "targetName": "Computer Science"
+        }
+      },
+      {
+        "@type": "Course",
+        "@id": "https://myog.fun/#course",
+        "name": "Build Browser Games with JavaScript",
+        "description": "A free, self-paced course where students learn core programming concepts by building real games — Snake, Minesweeper, and Pong — using plain HTML, CSS, and JavaScript. No frameworks, no downloads.",
+        "url": "https://myog.fun/",
+        "provider": {
+          "@type": "Person",
+          "name": "Mark Johnston",
+          "jobTitle": "Computer Science Teacher"
+        },
+        "educationalLevel": "High School",
+        "teaches": ["JavaScript", "HTML Canvas", "Game loops", "Event handling", "Collision detection", "Version control with Git", "Deployment with GitHub Pages"],
+        "coursePrerequisites": "No prior experience required",
+        "isAccessibleForFree": true,
+        "hasCourseInstance": [
+          {
+            "@type": "CourseInstance",
+            "name": "Lesson 1: Build Snake",
+            "description": "Build a Snake game in plain JavaScript using the HTML canvas API. Deploy free to GitHub Pages.",
+            "courseMode": "online"
+          },
+          {
+            "@type": "CourseInstance",
+            "name": "Lesson 2: Minesweeper",
+            "description": "Build Minesweeper from scratch — grids, recursion, and right-click events.",
+            "courseMode": "online"
+          },
+          {
+            "@type": "CourseInstance",
+            "name": "Lesson 3: Two-Player Pong",
+            "description": "Build a two-player Pong game with physics and a scoreboard — no library required.",
+            "courseMode": "online"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <style>
     :root {
       --green:   #39ff14;
